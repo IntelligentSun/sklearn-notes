@@ -289,7 +289,25 @@ print('=' * 80)
 print("LinearSVC with L1-based feature selection")
 # The smaller C, the stronger the regularization.
 # The more regularization, the more sparsity.
+
+# -------------------------------------------
+# L1-recovery 和 compressive sensing（压缩感知）
+
+# 当选择了正确的 alpha 值以后， Lasso 可以仅通过少量观察点便恢复完整的非零特征， 假设特定的条件可以被满足的话。
+# 特别的，数据量需要 “足够大” ，不然 L1 模型的表现将缺乏保障。
+# “足够大” 的定义取决于非零系数的个数、特征数量的对数值、噪音的数量、非零系数的最小绝对值、以及设计矩阵（design maxtrix） X 的结构。
+# 特征矩阵必须有特定的性质，如数据不能过度相关。
+#
+# 关于如何选择 alpha 值没有固定的规则。
+# alpha 值可以通过交叉验证来确定（ LassoCV 或者 LassoLarsCV ），尽管这可能会导致欠惩罚的模型：包括少量的无关变量对于预测值来说并非致命的。
+# 相反的， BIC（ LassoLarsIC ）倾向于给定高 alpha 值。
+# ------------------------------------------
+
 results.append(benchmark(Pipeline([
+    # Linear models 使用 L1 正则化的线性模型会得到稀疏解：他们的许多系数为 0
+    # 当目标是降低使用另一个分类器的数据集的维度，它们可以与 feature_selection.SelectFromModel一起使用来选择非零系数。
+    # 特别的，可以用于此目的的稀疏评估器有用于回归的 linear_model.Lasso,
+    # 以及用于分类的 linear_model.LogisticRegression 和 svm.LinearSVC
   ('feature_selection', SelectFromModel(LinearSVC(penalty="l1", dual=False,
                                                   tol=1e-3))),
   ('classification', LinearSVC(penalty="l2"))])))

@@ -23,6 +23,7 @@ import matplotlib.pyplot as plt
 
 from sklearn.datasets import fetch_olivetti_faces
 from sklearn.ensemble import ExtraTreesClassifier
+from sklearn.feature_selection import SelectFromModel
 
 # Number of cores to use to perform parallel fitting of the forest model
 # 模型并行化，若n_jobs = k，则计算被划分为k个作业，并运行在机器的k个核上
@@ -50,6 +51,11 @@ forest.fit(X, y)
 print("done in %0.3fs" % (time() - t0))
 importances = forest.feature_importances_
 importances = importances.reshape(data.images[0].shape)
+
+# 基于树的特征选取选择（特征选取）
+model = SelectFromModel(forest, prefit=True)
+X_new = model.transform(X)
+X_new.shape
 
 # Plot pixel importances
 plt.matshow(importances, cmap=plt.cm.hot)
